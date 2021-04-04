@@ -1,13 +1,14 @@
 package sql.demo;
 
+import java.sql.DatabaseMetaData;
 import java.sql.*;
 import java.util.Scanner;
 
 public class CriminalsDB {
         private static final String UserName = "root";
         private static final String Password = "root";
-        private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;MV_STORE=false";
-        private static final String DB_DRIVER = "lib/h2-1.4.200.jar";
+        private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;";
+        private static final String DB_DRIVER = "org.h2.Driver";
         public static Statement statement;
         public static Connection connection;
 
@@ -89,7 +90,7 @@ public class CriminalsDB {
             System.out.print("Input a LastName: ");
             String lName = in.nextLine();
             System.out.print("Input Birthdate: ");
-            int date = in.nextInt();
+            String date = in.nextLine();
             in.close();
 
             String sqlCommand = "INSERT " + nameTable + " (name , age) " + " Values (" + fName + " , " + names + " + " + lName + " , " + date + ");";
@@ -158,10 +159,8 @@ public class CriminalsDB {
 
         public static void main(String[] args) {
 
-
-
             try {
-            Class.forName(DB_DRIVER);
+                Class.forName (DB_DRIVER);
             } catch (ClassNotFoundException e) {
                 System.out.println("Where is your JDBC Driver?");
                 e.printStackTrace();
@@ -172,8 +171,6 @@ public class CriminalsDB {
             {
             connection = DriverManager.getConnection(URL, UserName, Password);
             } catch (SQLException e){e.getLocalizedMessage();}
-
-            //DataBaseMetaData metaData = connection.getMetaData();
 
             Scanner scanner = new Scanner(System.in);
             System.out.print(
