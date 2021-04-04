@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class CriminalsDB {
         private static final String UserName = "root";
         private static final String Password = "root";
-        private static final String URL = "jdbc:mysql://localhost:3306/criminalbase";
+        private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;MV_STORE=false";
         private static final String DB_DRIVER = "lib/h2-1.4.200.jar";
         public static Statement statement;
         public static Connection connection;
@@ -31,7 +31,7 @@ public class CriminalsDB {
 
                 // выполнить SQL запрос
                 statement.execute(createTableSQL);
-                System.out.println("Table \"criminalDataBase\" is created!");
+                System.out.println("Table \"criminalBase\" is created!");
             } catch (SQLException e) {
                 System.out.println(e.getLocalizedMessage());
             } finally {
@@ -73,6 +73,7 @@ public class CriminalsDB {
             }
         }
 
+//public ResultSetMetaData getMetaData() throws SQLException
 
         //Добавление записей в БД
 
@@ -81,13 +82,17 @@ public class CriminalsDB {
             Scanner in = new Scanner(System.in);
             System.out.print("Input a nameTable: ");
             String nameTable = in.nextLine();
-            System.out.print("Input a FIO: ");
-            String FIO = in.nextLine();
-            System.out.print("Input ages: ");
-            int ages = in.nextInt();
+            System.out.print("Input a FirstName: ");
+            String fName = in.nextLine();
+            System.out.print("Input a Name: ");
+            String names = in.nextLine();
+            System.out.print("Input a LastName: ");
+            String lName = in.nextLine();
+            System.out.print("Input Birthdate: ");
+            int date = in.nextInt();
             in.close();
 
-            String sqlCommand = "INSERT " + nameTable + " (name , age) Values (" + FIO + " , " + ages + ");";
+            String sqlCommand = "INSERT " + nameTable + " (name , age) " + " Values (" + fName + " , " + names + " + " + lName + " , " + date + ");";
 
             try {
                 statement = connection.createStatement();
@@ -153,10 +158,12 @@ public class CriminalsDB {
 
         public static void main(String[] args) {
 
+
+
             try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(DB_DRIVER);
             } catch (ClassNotFoundException e) {
-                System.out.println("Where is your MySQL JDBC Driver?");
+                System.out.println("Where is your JDBC Driver?");
                 e.printStackTrace();
                 return;
             }
@@ -166,14 +173,15 @@ public class CriminalsDB {
             connection = DriverManager.getConnection(URL, UserName, Password);
             } catch (SQLException e){e.getLocalizedMessage();}
 
+            //DataBaseMetaData metaData = connection.getMetaData();
+
             Scanner scanner = new Scanner(System.in);
             System.out.print(
                     "Hello, what do you want to do: " +'\n'+
                     "1. Get Info about some table" +'\n'+
-                    "2. Create some table" +'\n'+
+                    "2. Update rows in table" +'\n'+
                     "3. Add rows in table" +'\n'+
-                    "4. Update rows in table" +'\n'+
-                    "5. Delete rows in table" +'\n'+
+                    "4. Delete rows in table" +'\n'+
                     "Write only a number: like 1 or 4: ");
             if (scanner.hasNextInt()) {
                 int answer = scanner.nextInt();
@@ -187,7 +195,7 @@ public class CriminalsDB {
                     break;
                     case 2:
                     try {
-                    createDbUserTable();
+                    updatingRecords();
                     } catch (SQLException e) {
                     e.getLocalizedMessage();
                     }
@@ -199,13 +207,7 @@ public class CriminalsDB {
                     e.getLocalizedMessage();
                     }
                     break;
-                    case 4:
-                    try {
-                    updatingRecords();
-                    } catch (SQLException e) {
-                    e.getLocalizedMessage();
-                    }
-                    break;
+
                     case 5:
                     try {
                     deletingRecords();
