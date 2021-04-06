@@ -1,6 +1,6 @@
 package sql.demo;
 
-import java.sql.DatabaseMetaData;
+import org.h2.util.StringUtils;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -9,102 +9,83 @@ public class CriminalsDB {
         private static final String Password = "root";
         private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;";
         private static final String DB_DRIVER = "org.h2.Driver";
-        public static Statement statement;
-        public static Connection connection;
+        public static Statement statement = null;
+        public static Connection connection = null;
 
 
-        public static void createDbUserTable() throws SQLException {
+        private static void getInfoAboutDatabase() throws SQLException {
 
             Scanner in = new Scanner(System.in);
-            System.out.print("Input a nameTable: ");
-            String nameTable = in.nextLine();
-            in.close();
-
-            String createTableSQL = "CREATE TABLE "+ nameTable
-                    + "USER_ID NUMBER(5) NOT NULL, "
-                    + "user_name VARCHAR(20) NOT NULL, "
-                    + "CREATED_BY VARCHAR(20) NOT NULL, "
-                    + "CREATED_DATE DATE NOT NULL, " + "PRIMARY KEY (USER_ID) "
-                    + ")";
+            System.out.print("Input name of Schema");
+            String schemaName = in.nextLine();
+            ResultSet rs = statement.executeQuery("SHOW Tables from "  + schemaName);
 
             try {
                 statement = connection.createStatement();
-
-                // выполнить SQL запрос
-                statement.execute(createTableSQL);
-                System.out.println("Table \"criminalBase\" is created!");
-            } catch (SQLException e) {
-                System.out.println(e.getLocalizedMessage());
-            } finally {
-                if (statement != null) {
-                    statement.close();
+                while (rs.next()) {
+                    for (int i = 1; i< rs.getMetaData().getColumnCount(); i++) {
+                        System.out.println(rs.getString(1));
+                    }
                 }
-            }
-        }
+            } catch (SQLException e)
+            { e.getLocalizedMessage(); }
+
+            rs.close();
+            statement.close();
+        };
 
         private static void getInfoFromDatabase() throws SQLException {
-
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery("Select*from Public.Criminals");
             Scanner in = new Scanner(System.in);
             System.out.print("Input a nameTable: ");
             String nameTable = in.nextLine();
             in.close();
+            int id = 0;
 
-            String selectTableSQL = "SELECT * FROM " + nameTable;
+            switch (nameTable) {
+                case "criminals":
+                    try {
+                    while (rs.next()) {
+                    for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
+                    System.out.println(rs.getMetaData().getColumnName(i));
+                    System.out.println(rs.getString(i)); }
+                    }
 
-            try {
-                statement = connection.createStatement();
-
-                // выбираем данные с БД
-                ResultSet rs = statement.executeQuery(selectTableSQL);
-
-                // И если что то было получено то цикл while сработает
-                while (rs.next()) {
-                String id = rs.getString("id");
-                String name = rs.getString("name");
-
-                System.out.println("userid : " + id);
-                System.out.println("username : " + name);
-                }
-            } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
-            } finally {
-                if (statement != null) {
-                statement.close();
-                }
+                } catch (SQLException e) {
+                e.getLocalizedMessage();
+                }break;
             }
+            rs.close();
+            statement.close();
         }
-
-//public ResultSetMetaData getMetaData() throws SQLException
 
         //Добавление записей в БД
 
-        public static void addingRecords () throws SQLException
-        {
+        public static void addingRecords () throws SQLException {
             Scanner in = new Scanner(System.in);
             System.out.print("Input a nameTable: ");
             String nameTable = in.nextLine();
-            System.out.print("Input a FirstName: ");
-            String fName = in.nextLine();
-            System.out.print("Input a Name: ");
-            String names = in.nextLine();
-            System.out.print("Input a LastName: ");
-            String lName = in.nextLine();
-            System.out.print("Input Birthdate: ");
-            String date = in.nextLine();
-            in.close();
+            String values = null;
+            String parameters = null;
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(" Select * From " + " nameTable ");
 
-            String sqlCommand = "INSERT " + nameTable + " (name , age) " + " Values (" + fName + " , " + names + " + " + lName + " , " + date + ");";
+            while (rs.next()) {
 
-            try {
-                statement = connection.createStatement();
-                statement.executeUpdate (sqlCommand);
-            } catch (SQLException e) {
-            e.getLocalizedMessage();
+                for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
+                    System.out.print("Input a " + rs.getMetaData().getColumnName(i));
+                    values = values + in.nextLine() + " , ";
+                    parameters = parameters + rs.getMetaData().getColumnName(i) + " , ";
+                }
             }
-            finally {
-                if (statement != null)
-                {statement.close();}
-            }
+                in.close();
+                values.replaceFirst(".$", "");
+                parameters.replaceFirst(".$", "");
+                String sqlCommand = "INSERT " + nameTable + " " + "( " + parameters + " )" + " Values ( " + values + " );";
+            rs = statement.executeQuery(sqlCommand);
+            rs.close();
+            statement.close();
         }
 
         //Удаление записей из БД
@@ -157,25 +138,26 @@ public class CriminalsDB {
             }
         }
 
-        public static void main(String[] args) {
+        public static void main(String[] args) throws SQLException {
 
             try {
-                Class.forName (DB_DRIVER);
+            Class.forName (DB_DRIVER);
             } catch (ClassNotFoundException e) {
-                System.out.println("Where is your JDBC Driver?");
-                e.printStackTrace();
-                return;
-            }
+            System.out.println("Where is your JDBC Driver?");
+            e.printStackTrace();
+            return; }
 
             try
             {
             connection = DriverManager.getConnection(URL, UserName, Password);
+            statement = connection.createStatement();
             } catch (SQLException e){e.getLocalizedMessage();}
 
             Scanner scanner = new Scanner(System.in);
             System.out.print(
                     "Hello, what do you want to do: " +'\n'+
-                    "1. Get Info about some table" +'\n'+
+                    "1. What tables are contained in some schema?" +'\n'+
+                    "2. Output some table" +'\n'+
                     "2. Update rows in table" +'\n'+
                     "3. Add rows in table" +'\n'+
                     "4. Delete rows in table" +'\n'+
@@ -185,19 +167,27 @@ public class CriminalsDB {
                 switch (answer) {
                     case 1:
                     try {
+                    getInfoAboutDatabase();
+                    } catch (SQLException e) {
+                    e.getLocalizedMessage();
+                    }
+                    break;
+
+                    case 2:
+                    try {
                     getInfoFromDatabase();
                     } catch (SQLException e) {
                     e.getLocalizedMessage();
                     }
                     break;
-                    case 2:
+                    case 3:
                     try {
                     updatingRecords();
                     } catch (SQLException e) {
                     e.getLocalizedMessage();
                     }
                     break;
-                    case 3:
+                    case 4:
                     try {
                     addingRecords();
                     } catch (SQLException e) {
@@ -216,7 +206,6 @@ public class CriminalsDB {
 
             } else {
             System.out.print("You Wrote not a number");}
-
         }
     }
 
