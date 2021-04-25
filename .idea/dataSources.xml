@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="H2dataBase" uuid="71d4c48d-de38-4e8c-9726-f60374c4ba61">
+    <data-source source="LOCAL" name="H2" uuid="71d4c48d-de38-4e8c-9726-f60374c4ba61">
       <driver-ref>h2.unified</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.h2.Driver</jdbc-driver>
-      <jdbc-url>jdbc:h2:C:\JavaPrj\dataBase_H2/criminalBase;</jdbc-url>
+      <jdbc-url>jdbc:h2:tcp://localhost/~/test</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="CriminalBase" uuid="0cc6e0c0-ba3b-4eba-8afc-db6c4abee8e2">
+      <driver-ref>h2.unified</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.h2.Driver</jdbc-driver>
+      <jdbc-url>jdbc:h2:tcp://localhost:9092/CriminalBase;,</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

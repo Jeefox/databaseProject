@@ -1,17 +1,53 @@
 package sql.demo;
 
-import org.h2.util.StringUtils;
+import java.io.*;
 import java.sql.*;
 import java.util.Scanner;
 
-public class CriminalsDB {
-        private static final String UserName = "root";
-        private static final String Password = "root";
-        private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;";
-        private static final String DB_DRIVER = "org.h2.Driver";
-        public static Statement statement = null;
-        public static Connection connection = null;
+    public class CriminalsDB {
+    private static final String UserName = "root";
+    private static final String Password = "root";
+    private static final String URL = "jdbc:h2:C:\\JavaPrj\\dataBase_H2/criminalBase;";
+    private static final String DB_DRIVER = "org.h2.Driver";
+    public static Statement statement = null;
+    public static Connection connection = null;
 
+        public void readingTextFile() {
+            try {
+                File file = new File("/Users/prologistic/file.txt");
+                FileReader fr = new FileReader(file);
+                BufferedReader reader = new BufferedReader(fr);
+                String userName = reader.readLine();
+                String password = reader.readLine();
+                String url = reader.readLine();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private static void createDbUserTable() throws SQLException {
+            String createTableSQL = "CREATE SCHEMA myDatabase ; " ;
+            try {
+                // выполнить SQL запрос
+                statement.execute(createTableSQL);
+                System.out.println("Table \"criminalDataBase\" is created!");
+            } catch (SQLException e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+            statement.close();
+        }
+
+        private static void dbCreation () throws SQLException {
+            statement = connection.createStatement();
+            try {
+                statement.executeUpdate(" CREATE Database CriminalsDB ");
+            } catch (SQLException e) {e.getLocalizedMessage();}
+
+            statement.close();
+        }
 
         private static void getInfoAboutDatabase() throws SQLException {
 
@@ -151,7 +187,10 @@ public class CriminalsDB {
             {
             connection = DriverManager.getConnection(URL, UserName, Password);
             statement = connection.createStatement();
-            } catch (SQLException e){e.getLocalizedMessage();}
+            } catch (SQLException e)
+            {e.getLocalizedMessage();
+            dbCreation();
+            }
 
             Scanner scanner = new Scanner(System.in);
             System.out.print(
